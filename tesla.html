@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特斯拉线圈实验报告 - 电磁共振研究</title>
+    <style>
+        :root {
+            --primary: #3a7bd5;
+            --secondary: #00d2ff;
+            --dark: #1a237e;
+            --light: #e8eaf6;
+            --danger: #ff4081;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M30,50 Q50,30 70,50 T90,50" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/></svg>');
+            opacity: 0.3;
+        }
+        
+        h1, h2, h3 {
+            font-weight: 600;
+            margin-top: 0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        h2 {
+            color: var(--dark);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+            margin: 2rem 0 1rem;
+            font-size: 1.8rem;
+        }
+        
+        h3 {
+            color: var(--primary);
+            margin: 1.5rem 0 0.5rem;
+        }
+        
+        .date {
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--light);
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .formula {
+            background-color: #f5f5f5;
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        
+        .warning {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .danger {
+            background-color: #ffebee;
+            border-left: 4px solid var(--danger);
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .experiment-img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem auto;
+            display: block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tab-container {
+            margin: 2rem 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: -1px;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="animate">
+            <h1>特斯拉线圈实验报告</h1>
+            <p class="date">实验日期：2025年05月13日</p>
+        </header>
+        
+        <section class="card animate delay-1">
+            <h2>一、实验目的</h2>
+            <ol>
+                <li>掌握特斯拉线圈的构造原理及工作特性</li>
+                <li>验证电磁共振与高频高压放电现象</li>
+                <li>学习安全操作规范并观察放电效果</li>
+                <li>探究线圈参数对放电特性的影响</li>
+            </ol>
+        </section>
+        
+        <section class="card animate delay-1">
+            <h2>二、实验原理</h2>
+            <p>特斯拉线圈基于<strong>电磁共振原理</strong>，由两组或多组耦合谐振电路组成：</p>
+            <ul>
+                <li><strong>初级电路</strong>：包含电容（C₁）和电感（L₁），通过变压器升压后对电容充电，达到击穿电压时触发火花间隙放电，产生高频振荡</li>
+                <li><strong>次级电路</strong>：由次级线圈（L₂）与分布电容（C₂）构成LC谐振回路，通过电磁耦合接收能量，在放电终端形成超高电压（可达百万伏级），电离空气产生电弧</li>
+            </ul>
+            
+            <div class="formula">
+                <p>核心公式：</p>
+                $ f = \frac{1}{2\pi\sqrt{LC}} $
+                <p>要求初级和次级电路的谐振频率一致时能量传递效率最高</p>
+            </div>
+</section>
+        
+        <section class="card animate delay-2">
+            <h2>三、实验器材</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>器材名称</th>
+                        <th>参数/规格</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>次级线圈</td>
+                        <td>300-500匝</td>
+                        <td>铜线绕制于PVC管</td>
+                    </tr>
+                    <tr>
+                        <td>初级线圈</td>
+                        <td>10-15匝</td>
+                        <td>粗铜导线或扁平线圈</td>
+                    </tr>
+                    <tr>
+                        <td>高压电源</td>
+                        <td>9V-12V直流电源</td>
+                        <td>需升压至数千伏</td>
+                    </tr>
+                    <tr>
+                        <td>火花间隙模块</td>
+                        <td>可调间距设计</td>
+                        <td>用于触发高频振荡</td>
+                    </tr>
+                    <tr>
+                        <td>电容器组</td>
+                        <td>0.1μF-0.5μF</td>
+                        <td>耐压需匹配初级电压</td>
+                    </tr>
+                    <tr>
+                        <td>放电终端</td>
+                        <td>金属球或尖刺电极</td>
+                        <td>优化电场分布</td>
+                    </tr>
+                    <tr>
+                        <td>安全防护装置</td>
+                        <td>绝缘手套、屏蔽罩</td>
+                        <td>防止触电或高频干扰</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <section class="card animate delay-2">
+            <h2>四、实验步骤</h2>
+            
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="openTab(event, 'step1')">搭建电路</button>
+                    <button class="tab-btn" onclick="openTab(event, 'step2')">参数调试</button>
+                    <button class="tab-btn" onclick="openTab(event, 'step3')">放电实验</button>
+                    <button class="tab-btn" onclick="openTab(event, 'step4')">安全终止</button>
+                </div>
+                
+                <div id="step1" class="tab-content active">
+                    <h3>1. 搭建电路</h3>
+                    <ul>
+                        <li>初级电路：将电容器组与初级线圈串联，接入高压电源输出端</li>
+                        <li>次级电路：次级线圈一端接地，另一端接放电终端</li>
+                        <li>调整火花间隙距离至1-2mm，确保稳定触发</li>
+                    </ul>
+</div>
+                
+                <div id="step2" class="tab-content">
+                    <h3>2. 参数调试</h3>
+                    <ul>
+                        <li>通过微调初级线圈匝数或电容值，使初级和次级谐振频率匹配（可用示波器监测波形）</li>
+                        <li>逐步升高电源电压，观察放电终端是否出现电弧</li>
+                    </ul>
+                </div>
+                
+                <div id="step3" class="tab-content">
+                    <h3>3. 放电实验</h3>
+                    <ul>
+                        <li>开启电源，记录电弧长度、颜色及声音特征</li>
+                        <li>使用氖泡或荧光灯靠近放电区域，验证高频电场存在（氖泡发光无需直接接触电弧）</li>
+                    </ul>
+                    <img src="https://www.codrey.com/wp-content/uploads/2018/09/Tesla-coil-working.jpg" alt="放电效果图" class="experiment-img">
+                </div>
+                
+                <div id="step4" class="tab-content">
+                    <h3>4. 安全终止</h3>
+                    <ul>
+                        <li>断电后需对电容放电，避免残余电荷风险</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section class="card animate delay-3">
+            <h2>五、实验结果与分析</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>观测项目</th>
+                        <th>现象描述</th>
+                        <th>理论解释</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>电弧形态</td>
+                        <td>紫色闪电状放电</td>
+                        <td>高频高压电离空气分子</td>
+                    </tr>
+                    <tr>
+                        <td>氖泡发光</td>
+                        <td>非接触状态下持续点亮</td>
+                        <td>交变电场激发氖气电离</td>
+                    </tr>
+                    <tr>
+                        <td>谐振频率匹配</td>
+                        <td>电弧长度显著增加</td>
+                        <td>能量耦合效率提升</td>
+                    </tr>
+                    <tr>
+                        <td>金属球终端影响</td>
+                        <td>电弧分散且亮度降低</td>
+                        <td>电场分布均匀化降低场强</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <section class="card animate delay-3">
+            <h2>六、注意事项</h2>
+            <div class="warning">
+                <h3>安全规范</h3>
+                <p>操作时需佩戴绝缘装备，避免直接接触高压部件</p>
+            </div>
+            
+            <div class="warning">
+                <h3>环境要求</h3>
+                <p>实验区域需干燥且通风，远离易燃物</p>
+            </div>
+            
+            <div class="danger">
+                <h3>电磁干扰</h3>
+                <p>特斯拉线圈工作时可能干扰电子设备，需做好屏蔽</p>
+            </div>
+        </section>
+        
+        <section class="card animate delay-3">
+            <h2>七、实验结论</h2>
+            <ol>
+                <li>成功验证了特斯拉线圈通过电磁共振实现能量高效传递的机理</li>
+                <li>放电终端的形状显著影响电弧特性（尖端效应优先放电）</li>
+                <li>谐振频率匹配是决定输出电压峰值的关键因素</li>
+            </ol>
+        </section>
+        
+        <section class="card animate delay-3">
+            <h2>八、扩展思考</h2>
+            <ul>
+                <li>若在放电终端附加铝箔球，可抑制火花放电并增强交变电场效应（可通过氖泡检测验证）</li>
+                <li>特斯拉线圈的次级电压分布规律需结合理论模型与实测数据进一步探究</li>
+            </ul>
+        </section>
+        
+        <footer>
+            <p>© 2025 惊蛰实验研究报告</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 标签页切换功能
+        function openTab(evt, tabName) {
+            var i, tabcontent, tabbuttons;
+            
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            
+            tabbuttons = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+        
+        // 滚动动画效果
+        document.addEventListener("DOMContentLoaded", function() {
+            const elements = document.querySelectorAll('.animate');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            elements.forEach(element => {
+                observer.observe(element);
+                element.style.opacity = 0;
+            });
+        });
+    </script>
+	<p><a href="节气小组作业.html">返回节气介绍</a></p>
+</body>
+</html>
