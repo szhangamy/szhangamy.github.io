@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鲁米诺化学发光实验模拟</title>
+    <style>
+        :root {
+            --glow-blue: #00f2ff;
+            --glow-purple: #b400ff;
+            --dark-bg: #121212;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--dark-bg);
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .experiment-container {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            margin: 2rem 0;
+        }
+        
+        .flask {
+            width: 200px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to top, #1a237e, #283593);
+            transition: all 0.5s;
+        }
+        
+        .glow-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 30%, 
+                var(--glow-blue) 0%, 
+                transparent 70%);
+            opacity: 0;
+            animation: pulse 3s infinite;
+            mix-blend-mode: screen;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .controls {
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 10px;
+            width: 100%;
+            margin-top: 2rem;
+        }
+        
+        .slider-group {
+            margin: 1rem 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--glow-blue);
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        button {
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .chem-formula {
+            font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.5);
+            padding: 1rem;
+            border-left: 3px solid var(--glow-blue);
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>鲁米诺化学发光实验模拟</h1>
+    
+    <div class="experiment-container">
+        <div class="flask">
+            <div class="liquid"></div>
+            <div class="glow-effect" id="glow"></div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <h2>实验参数调节</h2>
+        
+        <div class="slider-group">
+            <label for="catalyst">催化剂浓度 (铁氰化钾)</label>
+            <input type="range" id="catalyst" min="0" max="100" value="50">
+        </div>
+        
+        <div class="slider-group">
+            <label for="h2o2">过氧化氢含量 (3%-30%)</label>
+            <input type="range" id="h2o2" min="3" max="30" value="15">
+        </div>
+        
+        <div class="slider-group">
+            <label for="ph">碱性环境 (pH 10-13)</label>
+            <input type="range" id="ph" min="10" max="13" value="11" step="0.1">
+        </div>
+        
+        <button id="start-btn">开始反应</button>
+    </div>
+    
+    <div class="chem-formula">
+        <p>核心化学反应式：</p>
+        <p>Luminol + OH⁻ + H₂O₂ → 3-APA* → 3-APA + hv (425nm)</p>
+    </div>
+    
+    <script>
+        const glow = document.getElementById('glow');
+        const startBtn = document.getElementById('start-btn');
+        const catalystSlider = document.getElementById('catalyst');
+        const h2o2Slider = document.getElementById('h2o2');
+        const phSlider = document.getElementById('ph');
+        
+        let isReacting = false;
+        
+        startBtn.addEventListener('click', () => {
+            isReacting = !isReacting;
+            
+            if (isReacting) {
+                startBtn.textContent = '停止反应';
+                startReaction();
+            } else {
+                startBtn.textContent = '开始反应';
+                stopReaction();
+            }
+        });
+        
+        function startReaction() {
+            // 根据滑块值计算发光强度
+            const catalystValue = catalystSlider.value / 100;
+            const h2o2Value = h2o2Slider.value / 30;
+            const phValue = (phSlider.value - 10) / 3;
+            
+            // 综合参数影响
+            const intensity = catalystValue * 0.6 + h2o2Value * 0.3 + phValue * 0.1;
+            
+            // 应用发光效果
+            glow.style.opacity = intensity;
+            glow.style.animationDuration = `${3 / intensity}s`;
+            
+            // 随机闪烁效果
+            setInterval(() => {
+                if (isReacting) {
+                    const randomPulse = Math.random() * 0.3;
+                    glow.style.opacity = Math.min(1, intensity + randomPulse);
+                }
+            }, 800);
+        }
+        
+        function stopReaction() {
+            glow.style.opacity = 0;
+            glow.style.animation = 'none';
+        }
+        
+        // 实时更新参数
+        [catalystSlider, h2o2Slider, phSlider].forEach(slider => {
+            slider.addEventListener('input', () => {
+                if (isReacting) {
+                    startReaction();
+                }
+            });
+        });
+    </script>
+	<p><a href="节气小组作业.html">返回节气介绍</a></p>
+</body>
+</html>
